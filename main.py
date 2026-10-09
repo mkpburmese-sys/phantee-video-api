@@ -20,19 +20,22 @@ class VideoRequest(BaseModel):
 @app.post("/extract")
 def extract_video(data: VideoRequest):
     # iOS Safari ရော Android ပါ တန်းဖွင့်လို့ရမည့် MP4 format သီးသန့် ဆွဲထုတ်ခြင်း
-    ydl_opts = {
-        'format': 'best[ext=mp4]/best',
-        'quiet': True,
-        'no_warnings': True,
+   ydl_opts = {
+    'format': 'best[ext=mp4]/best',
+    'quiet': True,
+    'no_warnings': True,
+    # YouTube Bot Block ကျော်လွှားရန်
+    'extractor_args': {
+        'youtube': {
+            'player_client': ['android', 'ios']
+        },
+        'tiktok': {
+            'app_version': 'latest'
+        }
+    },
+    # User-Agent အစစ် ထည့်သွင်းခြင်း
+    'http_headers': {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
     }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(data.url, download=False)
-            video_url = info.get('url')
-            return {
-                "success": True,
-                "video_url": video_url,
-                "title": info.get('title', 'Imported Video')
-            }
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+}
