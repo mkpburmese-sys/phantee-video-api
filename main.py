@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import yt_dlp
 
 app = FastAPI()
+
+# Browser များမှ တိုက်ရိုက် ခေါ်ယူခွင့်ပြုရန် (မပါမဖြစ် လိုအပ်ပါသည်)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class VideoRequest(BaseModel):
     url: str
