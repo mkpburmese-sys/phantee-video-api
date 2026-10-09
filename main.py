@@ -5,7 +5,6 @@ import yt_dlp
 
 app = FastAPI()
 
-# Browser များမှ တိုက်ရိုက် ခေါ်ယူခွင့်ပြုရန် (မပါမဖြစ် လိုအပ်ပါသည်)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,12 +22,16 @@ async def extract_video(req: VideoRequest):
         'format': 'best[ext=mp4]/best',
         'quiet': True,
         'no_warnings': True,
+        # YouTube Bot Check ကို ကျော်လွှားရန် Client များကို စုံလင်စွာ သတ်မှတ်ပေးခြင်း
         'extractor_args': {
-            'youtube': {'player_client': ['android', 'ios']},
-            'tiktok': {'app_version': 'latest'}
+            'youtube': {
+                'player_client': ['ios', 'android', 'mweb'],
+                'player_skip': ['webpage', 'configs']
+            }
         },
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+            'User-Agent': 'com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1 like Mac OS X; en_US)',
+            'Accept-Language': 'en-US,en;q=0.9',
         }
     }
     try:
@@ -39,7 +42,6 @@ async def extract_video(req: VideoRequest):
             if not video_url:
                 return {"success": False, "error": "Direct video stream URL not found"}
             
-            # Frontend က မျှော်လင့်နေသော format
             return {
                 "success": True,
                 "video_url": video_url,
